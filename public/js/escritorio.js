@@ -1,17 +1,21 @@
  
 // HTML References
-const lblDesktop = document.querySelector('h1');
+const lblescritorio = document.querySelector('h1');
 const btnNew     = document.querySelector('button');
 const lblTicket  = document.querySelector('small');
- 
-const searchParams = new URLSearchParams(window.location.search);
-if(searchParams.has('Escritorio')){
-    window.location = 'index.html';
-    throw new Error('Desktop is required');
-}
+const divAlert  = document.querySelector('.alert');
+const lblPendientes  = document.querySelector('#lblPendientes');
 
-const desktop = searchParams.get('Escritorio');
-lblDesktop.innerText = desktop;
+const searchParams = new URLSearchParams(window.location.search);
+if(!searchParams.has('escritorio')){ 
+    window.location = 'index.html';
+    throw new Error('escritorio is required');
+} 
+
+const escritorio = searchParams.get('escritorio');
+lblescritorio.innerText = escritorio;
+divAlert.style.display = 'none';
+ 
 
 const socket = io();
 
@@ -23,16 +27,19 @@ socket.on('disconnect', () => {
     btnNew.disabled = true;
 }); 
 
-socket.on('last-ticket', (last) => {
-    // btnNewTicket.innerText = 'Ticket ' + last;
+socket.on('tickets-pending', (pending) => {
+    lblPendientes.innerText = pending;
 });
 
 btnNew.addEventListener( 'click', () => {
  
-    socket.emit('take-ticket', {desktop}, ({ok, ticket}) => {
+    socket.emit('take-ticket', {escritorio}, ({ok, ticket, msg}) => {  
         if(!ok){
-            return;
+            lblTicket.innerText = 'Nadie';
+            return divAlert.style.display = '';
         }
+        
+        lblTicket.innerText = 'Ticket ' + ticket.number
     });
     // socket.emit( 'next-ticket', null, ( ticket ) => {
     //     btnNewTicket.innerText = ticket;

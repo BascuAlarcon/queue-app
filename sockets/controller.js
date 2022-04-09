@@ -5,23 +5,30 @@ const ticketControl = new TicketControl();
 const socketController = (socket) => {  
 
     socket.emit('last-ticket', ticketControl.last)
+    socket.emit('tickets-state', ticketControl.last4) 
+    socket.emit('tickets-pending', ticketControl.tickets.length);
 
     socket.on('next-ticket', ( payload, callback ) => {
          
         const next = ticketControl.next();
         callback(next);
-
+        socket.broadcast.emit('tickets-pending', ticketControl.tickets.length);
     })
 
-    socket.on('take-ticket', ({desktop}, callback) => {
-        if(desktop){
+    socket.on('take-ticket', ({escritorio}, callback) => { 
+        if(!escritorio){
             return callback({
                 ok: false,
-                msg: 'Desktop is required'
+                msg: 'escritorio is required'
             });
-        }
+        } 
+        
+        const ticket = ticketControl.ticketAttend(escritorio);
 
-        const ticket = ticketControl.ticketAttend(desktop);
+        socket.broadcast.emit('tickets-state', ticketControl.last4)
+        socket.emit('tickets-pending', ticketControl.tickets.length);
+        socket.broadcast.emit('tickets-pending', ticketControl.tickets.length);
+
         if(!ticket){
             callback({
                 ok: false,

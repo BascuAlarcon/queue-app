@@ -3,9 +3,9 @@ const path = require('path');
 const fs = require('fs');
 
 class Ticket{
-    constructor(number, desk){
+    constructor(number, escritorio){
         this.number = number;
-        this.desk   = desk;
+        this.escritorio   = escritorio;
     }
 }
 
@@ -53,15 +53,14 @@ class TicketControl{
         return 'Ticket ' + ticket.number;
     }
 
-    ticketAttend(desk){
+    ticketAttend(escritorio){
         if(this.tickets.length === 0){
             return null;
         }
 
-        const ticket = this.tickets[0];
-        this.tickets.shift();
+        const ticket = this.tickets.shift();
+        ticket.escritorio = escritorio;
 
-        ticket.desk = desk;
         this.last4.unshift(ticket);
 
         if(this.last4.length > 4){
